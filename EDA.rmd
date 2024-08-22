@@ -6,26 +6,7 @@
 library(tidyverse)
 library(nflfastR)
 pbp = load_pbp(2016:2023)
-```
-
-```{r helper functions}
-generate_yoy_table = function(data, stat, player_id_col, player_name_col) {
-  agg = data %>%
-    group_by(season, !!sym(player_id_col), !!sym(player_name_col)) %>%
-    summarize(stat_mean = mean(!!sym(stat)))
-
-  agg2 = agg %>%
-    rename(next_season = season, ns_stat_mean = stat_mean)
-
-  agg = agg %>%
-    mutate(next_season = season + 1)
-
-  joined = agg %>%
-    full_join(agg2, by = c("next_season", player_id_col, player_name_col)) %>%
-    arrange(!!sym(player_name_col), !!sym(player_id_col), season)
-
-  return(joined)
-}
+source("functions.R")
 ```
 
 
@@ -33,44 +14,12 @@ generate_yoy_table = function(data, stat, player_id_col, player_name_col) {
 ```{r stability}
 passes = pbp %>%
         filter(play_type == "pass")
-sack_set = passes %>%
-        filter(!is.na(sack))
 
-freq_throwers = sack_set %>%
-  group_by(passer_player_id) %>%
-  summarize(n = n()) %>%
-  filter(n >= 50) %>%
-  .$passer_player_id
+yga = analyze_yoy(passes, "yards_gained", "passer_player_id", "passer_player_name")
+sra = analyze_yoy(passes, "sack", "passer_player_id", "passer_player_name")
 
-passer_test = oneway.test(sack ~ passer_player_id,
-            sack_set %>% filter(passer_player_id %in% freq_throwers),
-            var.equal = F)
+fgs = pbp %>%
+        filter(play_type == "field_goal")
 
-sack_set %>%
-        filter(passer_player_id %in% freq_throwers) %>%
-        group_by(passer_player_id, passer_player_name) %>%
-        summarize(n = n(), sack_rate = mean(sack)) %>%
-        arrange(sack_rate)
-```
-
-```{r}
-yga = generate_yoy_table(passes, "yards_gained", "passer_player_id", "passer_player_name")
-yga = yga %>%
-        filter(!is.na(season),
-               !is.na(next_season), !is.na(ns_stat_mean),
-               passer_player_id %in% freq_throwers)
-
-yga_model = lm(ns_stat_mean ~ stat_mean, yga)
-
-sra = generate_yoy_table(passes, "sack", "passer_player_id", "passer_player_name")
-sra = sra %>%
-        filter(!is.na(season),
-               !is.na(next_season),
-               !is.na(ns_stat_mean), passer_player_id %in% freq_throwers)
-
-ggplot(sra, aes(x = stat_mean, y = ns_stat_mean)) +
-        geom_point(aes(color = passer_player_name)) +
-        geom_smooth(method = lm)
-
-sra_model = lm(ns_stat_mean ~ stat_mean, sra)
+fgs_stat = analyze_yoy(fgs, "kick_distance", "kicker_player_id", "kicker_player_name")
 ```
