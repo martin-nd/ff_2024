@@ -15,3 +15,4 @@ adot = passes %>%
 
 ggplot(pbp, aes(x = passing_yards)) +
   geom_histogram(binwidth = 1)
+
