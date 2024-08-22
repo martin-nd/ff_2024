@@ -3,7 +3,8 @@ library(tidyverse)
 analyze_yoy = function(data, stat, player_id_col, player_name_col) {
   agg = data %>%
     group_by(season, !!sym(player_id_col), !!sym(player_name_col)) %>%
-    summarize(stat_mean = mean(!!sym(stat)))
+    summarize(stat_mean = mean(!!sym(stat)), n = n()) %>%
+    filter(n >= quantile(n)[3])
 
   agg2 = agg %>%
     rename(next_season = season, ns_stat_mean = stat_mean)
