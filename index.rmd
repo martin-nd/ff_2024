@@ -15,4 +15,4 @@ This is a live report / readme of my data driven fantasy football project. Each 
 
 This is my first attempt at doing sports analytics, and my sport growing up was swimming, so I'm extremely unfamiliar with both sports data and football in particular, but I'm hoping that what I lack in game knowledge, I make up for in mathematics, coding, and data science expertise. I guess we'll see.
 
-# Draft Preparation / Pre-Draft Analytics
+# Draft Preparation / Pre-Draft Analytics (8-22-24)
