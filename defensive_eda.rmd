@@ -1,0 +1,31 @@
+
+
+imports / data load
+```{r}
+library(tidyverse)
+library(caret)
+library(nflfastR)
+pbp = load_pbp(2016:2023)
+to_select = c(
+  "defteam",
+  "posteam",
+  "down",
+  "ydstogo",
+  "yardline_100",
+  "game_seconds_remaining",
+  "half_seconds_remaining",
+  "quarter_seconds_remaining",
+  "play_type",
+  "yards_gained",
+  "epa",
+  "success",
+  "sack",
+  "interception",
+  "fumble_forced",
+  "fumble_lost",
+  "first_down_rush",
+  "first_down_pass"
+)
+def_data = pbp %>%
+    select(all_of(to_select))
+```

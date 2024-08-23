@@ -10,7 +10,7 @@ source("functions.R")
 ```
 
 
-# Finding stability
+finding stability
 ```{r stability}
 play_types = unique(pbp$play_type)
 passes = pbp %>%
@@ -20,7 +20,7 @@ fgs = pbp %>%
 runs = pbp %>%
   filter(play_type == "run")
 
-yga = analyze_yoy(passes, "yards_gained", "passer_player_id", "passer_player_name")
+pyga = analyze_yoy(passes, "yards_gained", "passer_player_id", "passer_player_name")
 sra = analyze_yoy(passes, "sack", "passer_player_id", "passer_player_name")
 fgs_stat = analyze_yoy(fgs, "kick_distance", "kicker_player_id", "kicker_player_name")
 ryga = analyze_yoy(runs, "yards_gained", "rusher_player_id", "rusher_player_name")
