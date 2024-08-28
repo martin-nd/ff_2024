@@ -5,13 +5,13 @@ roster = read_csv("Data/current_roster.csv")[, 2:5]
 
 # 1 point for every 25 passing yards / 1 point for every 10 receiving yards
 freq_throwers = pbp %>%
-  group_by(passer_player_id, passer_player_name) %>%
+  group_by(passer_player_id) %>%
   summarize(n = n()) %>%
   filter(n >= 50, !is.na(passer_player_id)) %>%
   .$passer_player_id
 
 freq_receivers = pbp %>%
-  group_by(receiver_player_id, receiver_player_name) %>%
+  group_by(receiver_player_id) %>%
   summarize(n = n()) %>%
   filter(n >= 50, !is.na(receiver_player_id)) %>%
   .$receiver_player_id
@@ -43,12 +43,19 @@ write_csv(qb_stats, "Data/qb_passing_stats.csv")
 receiver_stats = pbp %>%
   filter(!is.na(receiver_player_id), receiver_player_id %in% freq_receivers) %>%
   group_by(receiver_player_id, receiver_player_name) %>%
-  summarize(mry = mean(receiving_yards, na.rm = T), n = n()) %>%
+  summarize(mry = mean(receiving_yards, na.rm = T), rfr = n(),
+            completion_rate = mean(complete_pass)) %>%
   rename(player_id = receiver_player_id) %>%
   left_join(roster, by = "player_id") %>%
   filter(position != "QB", !is.na(position), !is.na(mry)) %>%
-  arrange(-mry) %>%
-  filter(n >= 50)
+  filter(rfr >= 50) %>%
+  mutate(eyr = completion_rate * mry) %>%
+  arrange(-eyr)
+
+rfr_min = min(receiver_stats$rfr)
+rfr_max = max(receiver_stats$rfr)
+receiver_stats = receiver_stats %>%
+  mutate(rfr = (rfr - rfr_min) / (rfr_max - rfr_min))
 
 write_csv(receiver_stats, "Data/receiver_stats.csv")
 
