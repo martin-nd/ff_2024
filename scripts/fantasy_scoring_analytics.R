@@ -26,12 +26,17 @@ qb_stats = pr_stats %>%
   group_by(passer_player_id, passer_player_name) %>%
   summarize(mpy = mean(passing_yards, na.rm = T),
             inv_sack_rate = 1 - mean(sack),
-            completion_rate = mean(complete_pass), n = n()) %>%
+            completion_rate = mean(complete_pass),
+            pfr = n()) %>%
   mutate(eyp = mpy * inv_sack_rate * completion_rate) %>%
   arrange(-eyp) %>%
   rename(player_id = passer_player_id) %>%
   left_join(roster, by = "player_id") %>%
   filter(position == "QB")
+pfr_max = max(qb_stats$pfr)
+pfr_min = min(qb_stats$pfr)
+qb_stats = qb_stats %>%
+  mutate(pfr = (pfr - pfr_min) / (pfr_max - pfr_min))
 
 write_csv(qb_stats, "Data/qb_passing_stats.csv")
 
