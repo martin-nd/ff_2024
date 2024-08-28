@@ -50,3 +50,5 @@ receiver_stats = pbp %>%
   arrange(-mry) %>%
   filter(n >= 50)
 
+write_csv(receiver_stats, "Data/receiver_stats.csv")
+
